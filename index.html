@@ -1,0 +1,296 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI School Assistant</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background: linear-gradient(135deg,#667eea,#764ba2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+}
+
+.container {
+    width: 100%;
+    max-width: 500px;
+    height: 90vh;
+    max-height: 750px;
+    background: white;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 10px 40px #0004;
+}
+
+.header {
+    background: #4338ca;
+    color: white;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo {
+    font-size: 35px;
+}
+
+.header h2 {
+    font-size: 21px;
+}
+
+.header p {
+    font-size: 12px;
+    margin-top: 5px;
+    color: #c7d2fe;
+}
+
+.chat-area {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: #f8fafc;
+}
+
+.message {
+    padding: 13px;
+    margin-bottom: 14px;
+    border-radius: 14px;
+    max-width: 85%;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.bot {
+    background: white;
+    border: 1px solid #ddd;
+    color: #222;
+}
+
+.user {
+    background: #4338ca;
+    color: white;
+    margin-left: auto;
+}
+
+.quick {
+    padding: 12px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+}
+
+.quick button {
+    white-space: nowrap;
+    padding: 9px 13px;
+    border: 1px solid #4338ca;
+    border-radius: 20px;
+    color: #4338ca;
+    background: white;
+    cursor: pointer;
+}
+
+.input-box {
+    display: flex;
+    padding: 15px;
+    gap: 10px;
+    border-top: 1px solid #ddd;
+}
+
+.input-box input {
+    flex: 1;
+    min-width: 0;
+    padding: 14px;
+    border: none;
+    outline: none;
+    border-radius: 25px;
+    background: #f1f5f9;
+}
+
+.input-box button {
+    width: 48px;
+    height: 48px;
+    border: none;
+    background: #4338ca;
+    color: white;
+    font-size: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.footer {
+    text-align: center;
+    padding: 8px;
+    font-size: 11px;
+    color: gray;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <div class="logo">🤖</div>
+        <div>
+            <h2>AI School Assistant</h2>
+            <p>● Online | Your Smart School Helper</p>
+        </div>
+    </div>
+
+    <div class="chat-area" id="chatArea">
+
+        <div class="message bot">
+            👋 Hello Student!
+
+            Welcome to AI School Assistant.
+
+            I can help you with:
+
+            📚 Homework
+            📝 Exam Information
+            💰 School Fees
+            🕒 School Timings
+            📅 Attendance
+            🎓 Admissions
+
+            How can I help you today?
+        </div>
+
+    </div>
+
+    <div class="quick">
+        <button onclick="ask('School timing')">🕒 Timing</button>
+        <button onclick="ask('School fees')">💰 Fees</button>
+        <button onclick="ask('Homework')">📚 Homework</button>
+        <button onclick="ask('Exam timetable')">📝 Exams</button>
+        <button onclick="ask('Attendance')">📅 Attendance</button>
+    </div>
+
+    <div class="input-box">
+        <input id="userInput"
+        type="text"
+        placeholder="Ask anything about school..."
+        onkeydown="if(event.key==='Enter') sendMessage()">
+
+        <button onclick="sendMessage()">➤</button>
+    </div>
+
+    <div class="footer">
+        AI School Assistant © 2026
+    </div>
+
+</div>
+
+<script>
+
+const chatArea = document.getElementById("chatArea");
+
+function addMessage(text,type) {
+    let div = document.createElement("div");
+    div.className = "message " + type;
+    div.textContent = text;
+    chatArea.appendChild(div);
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function ask(question) {
+    document.getElementById("userInput").value = question;
+    sendMessage();
+}
+
+function getAnswer(question) {
+
+    let q = question.toLowerCase();
+
+    if(q.includes("hello") || q.includes("hi")) {
+        return "Hello! 😊 Welcome to AI School Assistant. How can I help you?";
+    }
+
+    if(q.includes("timing") || q.includes("time")) {
+        return "🕒 School Timing:\nMonday to Saturday\n8:00 AM to 2:00 PM.\nPlease verify with your school.";
+    }
+
+    if(q.includes("fee")) {
+        return "💰 For school fees information, please contact the school office. Ask about tuition fees, admission fees and payment dates.";
+    }
+
+    if(q.includes("homework")) {
+        return "📚 I can help with your homework! Tell me your class, subject and question.";
+    }
+
+    if(q.includes("exam") || q.includes("timetable")) {
+        return "📝 Please check your school notice board for the latest examination timetable.";
+    }
+
+    if(q.includes("attendance")) {
+        return "📅 For attendance details, please contact your class teacher or school administration.";
+    }
+
+    if(q.includes("admission")) {
+        return "🎓 For admission, visit the school office and ask for the admission form and required documents.";
+    }
+
+    if(q.includes("holiday")) {
+        return "🏖️ Please check the official school holiday notice.";
+    }
+
+    if(q.includes("teacher")) {
+        return "👨‍🏫 You can get teacher information from your school office.";
+    }
+
+    if(q.includes("principal")) {
+        return "🏫 Please contact the school office for principal information.";
+    }
+
+    if(q.includes("thank")) {
+        return "😊 You're welcome! Happy learning!";
+    }
+
+    return "🤖 Sorry, I don't have that information yet. Please ask about school fees, homework, exams, attendance, timing or admissions.";
+}
+
+function sendMessage() {
+
+    let input = document.getElementById("userInput");
+    let question = input.value.trim();
+
+    if(question === "") return;
+
+    addMessage(question,"user");
+    input.value = "";
+
+    let typing = document.createElement("div");
+    typing.className = "message bot";
+    typing.textContent = "🤖 Thinking...";
+    chatArea.appendChild(typing);
+
+    chatArea.scrollTop = chatArea.scrollHeight;
+
+    setTimeout(function() {
+        typing.textContent = getAnswer(question);
+        chatArea.scrollTop = chatArea.scrollHeight;
+    },700);
+}
+
+</script>
+
+</body>
+</html>
