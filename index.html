@@ -1,296 +1,979 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI School Assistant</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Web - My Chatbot</title>
 
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
+  <!-- Markdown Parser & Code Syntax Highlighting -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
-body {
-    min-height: 100vh;
-    background: linear-gradient(135deg,#667eea,#764ba2);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 15px;
-}
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-.container {
-    width: 100%;
-    max-width: 500px;
-    height: 90vh;
-    max-height: 750px;
-    background: white;
-    border-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    box-shadow: 0 10px 40px #0004;
-}
+  <style>
+    :root {
+      --wa-bg: #0c1317;
+      --wa-header: #202c33;
+      --wa-footer: #202c33;
+      --wa-incoming: #202c33;
+      --wa-outgoing: #005c4b;
+      --wa-text: #e9edef;
+      --wa-muted: #8696a0;
+      --wa-green: #00a884;
+      --wa-blue-tick: #53bdeb;
+      --wa-input-bg: #2a3942;
+    }
 
-.header {
-    background: #4338ca;
-    color: white;
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Segoe UI, Helvetica Neue, Arial, sans-serif;
+    }
 
-.logo {
-    font-size: 35px;
-}
+    body {
+      background: #111b21;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
 
-.header h2 {
-    font-size: 21px;
-}
+    .whatsapp-app {
+      width: 100%;
+      max-width: 950px;
+      height: 96vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--wa-bg);
+      border-radius: 12px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+      overflow: hidden;
+      border: 1px solid #222d34;
+    }
 
-.header p {
-    font-size: 12px;
-    margin-top: 5px;
-    color: #c7d2fe;
-}
+    header {
+      background: var(--wa-header);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #2a3942;
+      z-index: 10;
+    }
 
-.chat-area {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    background: #f8fafc;
-}
+    .chat-profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
 
-.message {
-    padding: 13px;
-    margin-bottom: 14px;
-    border-radius: 14px;
-    max-width: 85%;
-    font-size: 14px;
-    line-height: 1.6;
-    white-space: pre-wrap;
-}
+    .profile-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00a884, #005c4b);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-size: 20px;
+      position: relative;
+    }
 
-.bot {
-    background: white;
-    border: 1px solid #ddd;
-    color: #222;
-}
+    .online-indicator {
+      width: 10px;
+      height: 10px;
+      background: #25d366;
+      border: 2px solid var(--wa-header);
+      border-radius: 50%;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
 
-.user {
-    background: #4338ca;
-    color: white;
-    margin-left: auto;
-}
+    .profile-info h2 {
+      font-size: 16px;
+      color: var(--wa-text);
+      font-weight: 500;
+    }
 
-.quick {
-    padding: 12px;
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-}
+    .profile-info p {
+      font-size: 12.5px;
+      color: var(--wa-muted);
+      margin-top: 1px;
+    }
 
-.quick button {
-    white-space: nowrap;
-    padding: 9px 13px;
-    border: 1px solid #4338ca;
-    border-radius: 20px;
-    color: #4338ca;
-    background: white;
-    cursor: pointer;
-}
+    .header-icons {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: var(--wa-muted);
+      font-size: 18px;
+    }
 
-.input-box {
-    display: flex;
-    padding: 15px;
-    gap: 10px;
-    border-top: 1px solid #ddd;
-}
+    .header-icons i {
+      cursor: pointer;
+      transition: color 0.2s;
+    }
 
-.input-box input {
-    flex: 1;
-    min-width: 0;
-    padding: 14px;
-    border: none;
-    outline: none;
-    border-radius: 25px;
-    background: #f1f5f9;
-}
+    .header-icons i:hover {
+      color: var(--wa-text);
+    }
 
-.input-box button {
-    width: 48px;
-    height: 48px;
-    border: none;
-    background: #4338ca;
-    color: white;
-    font-size: 20px;
-    border-radius: 50%;
-    cursor: pointer;
-}
+    #chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background-color: #0b141a;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 20px 20px;
+      scroll-behavior: smooth;
+    }
 
-.footer {
-    text-align: center;
-    padding: 8px;
-    font-size: 11px;
-    color: gray;
-}
+    #chat-box::-webkit-scrollbar {
+      width: 6px;
+    }
+    #chat-box::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+    }
 
-</style>
+    .date-pill {
+      align-self: center;
+      background: #182229;
+      color: var(--wa-muted);
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .msg-row {
+      display: flex;
+      width: 100%;
+      animation: popIn 0.15s ease-out;
+    }
+
+    .msg-row.user {
+      justify-content: flex-end;
+    }
+
+    .msg-row.ai {
+      justify-content: flex-start;
+    }
+
+    .msg-bubble {
+      max-width: 78%;
+      padding: 7px 11px 8px 11px;
+      border-radius: 8px;
+      font-size: 14.5px;
+      line-height: 1.45;
+      color: var(--wa-text);
+      position: relative;
+      word-wrap: break-word;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .msg-row.user .msg-bubble {
+      background: var(--wa-outgoing);
+      border-top-right-radius: 0;
+    }
+
+    .msg-row.ai .msg-bubble {
+      background: var(--wa-incoming);
+      border-top-left-radius: 0;
+    }
+
+    .msg-meta {
+      float: right;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 12px;
+      margin-top: 5px;
+      font-size: 11px;
+      color: var(--wa-muted);
+      user-select: none;
+    }
+
+    .blue-tick {
+      color: var(--wa-blue-tick);
+      font-size: 13px;
+    }
+
+    .msg-bubble p {
+      margin-bottom: 6px;
+    }
+    .msg-bubble p:last-of-type {
+      margin-bottom: 0;
+    }
+
+    .msg-bubble code:not(pre code) {
+      background: rgba(0,0,0,0.3);
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-family: monospace;
+      color: #ffd8a8;
+      font-size: 13px;
+    }
+
+    .code-box {
+      margin: 6px 0;
+      background: #111b21;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #2a3942;
+    }
+
+    .code-top {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 10px;
+      background: #182229;
+      color: var(--wa-muted);
+      font-size: 11px;
+      font-family: monospace;
+    }
+
+    .copy-btn {
+      background: none;
+      border: none;
+      color: var(--wa-muted);
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .copy-btn:hover {
+      color: var(--wa-text);
+    }
+
+    .code-box pre {
+      padding: 8px 10px;
+      overflow-x: auto;
+      margin: 0;
+    }
+
+    .code-box pre code {
+      font-size: 12.5px;
+      background: transparent !important;
+      padding: 0 !important;
+    }
+
+    .typing-box {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 14px;
+    }
+
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--wa-muted);
+      border-radius: 50%;
+      animation: pulse 1s infinite alternate;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes pulse {
+      0% { opacity: 0.3; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1.1); }
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.97); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    footer {
+      background: var(--wa-footer);
+      padding: 8px 14px;
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .footer-btn {
+      background: none;
+      border: none;
+      color: var(--wa-muted);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 8px 6px;
+      transition: color 0.2s;
+    }
+
+    .footer-btn:hover {
+      color: var(--wa-text);
+    }
+
+    .input-wrapper {
+      flex: 1;
+      background: var(--wa-input-bg);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      padding: 5px 12px;
+    }
+
+    textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--wa-text);
+      font-size: 14.5px;
+      resize: none;
+      max-height: 120px;
+      min-height: 24px;
+      line-height: 1.4;
+    }
+
+    .send-circle {
+      width: 42px;
+      height: 42px;
+      background: var(--wa-green);
+      border: none;
+      border-radius: 50%;
+      color: #0b141a;
+      display: grid;
+      place-items: center;
+      font-size: 17px;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .send-circle:hover {
+      transform: scale(1.05);
+      background: #06cf9c;
+    }
+
+    .send-circle:disabled {
+      background: #2a3942;
+      color: #8696a0;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .whatsapp-app { height: 100dvh; border-radius: 0; border: none; }
+      .msg-bubble { max-width: 88%; }
+    }
+  </style>
 </head>
 
 <body>
-
-<div class="container">
-
-    <div class="header">
-        <div class="logo">🤖</div>
-        <div>
-            <h2>AI School Assistant</h2>
-            <p>● Online | Your Smart School Helper</p>
+  <div class="whatsapp-app">
+    <header>
+      <div class="chat-profile">
+        <div class="profile-avatar">
+          <i class="fa-solid fa-robot"></i>
+          <span class="online-indicator"></span>
         </div>
-    </div>
-
-    <div class="chat-area" id="chatArea">
-
-        <div class="message bot">
-            👋 Hello Student!
-
-            Welcome to AI School Assistant.
-
-            I can help you with:
-
-            📚 Homework
-            📝 Exam Information
-            💰 School Fees
-            🕒 School Timings
-            📅 Attendance
-            🎓 Admissions
-
-            How can I help you today?
+        <div class="profile-info">
+          <h2>My Chatbot</h2>
+          <p id="chat-status">online</p>
         </div>
+      </div>
+      <div class="header-icons">
+        <i class="fa-solid fa-phone" title="Call"></i>
+        <i class="fa-solid fa-video" title="Video Call"></i>
+        <i class="fa-solid fa-ellipsis-vertical" id="clear-chat" title="Clear Chat"></i>
+      </div>
+    </header>
 
+    <div id="chat-box">
+      <div class="date-pill">TODAY</div>
+      
+      <div class="msg-row ai">
+        <div class="msg-bubble">
+          Hello! 👋 Main aapka AI assistant hoon. Aap mujhse koi bhi sawal pooch sakte hain!
+          <div class="msg-meta">
+            <span class="msg-time" id="welcome-time">12:00 PM</span>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="quick">
-        <button onclick="ask('School timing')">🕒 Timing</button>
-        <button onclick="ask('School fees')">💰 Fees</button>
-        <button onclick="ask('Homework')">📚 Homework</button>
-        <button onclick="ask('Exam timetable')">📝 Exams</button>
-        <button onclick="ask('Attendance')">📅 Attendance</button>
-    </div>
+    <footer>
+      <button class="footer-btn" title="Emoji"><i class="fa-regular fa-face-smile"></i></button>
+      <button class="footer-btn" title="Attach"><i class="fa-solid fa-paperclip"></i></button>
 
-    <div class="input-box">
-        <input id="userInput"
-        type="text"
-        placeholder="Ask anything about school..."
-        onkeydown="if(event.key==='Enter') sendMessage()">
+      <div class="input-wrapper">
+        <textarea id="chat-input" placeholder="Type a message" rows="1"></textarea>
+      </div>
 
-        <button onclick="sendMessage()">➤</button>
-    </div>
+      <button class="send-circle" id="send-btn" title="Send">
+        <i class="fa-solid fa-paper-plane"></i>
+      </button>
+    </footer>
+  </div>
 
-    <div class="footer">
-        AI School Assistant © 2026
-    </div>
+  <script>
+    // ============================================================
+    // GROQ CONFIGURATION
+    // ============================================================
 
-</div>
+    // IMPORTANT:
+    // Apni NEW Groq API key yahan paste karein.
+    // Example:
+    // const GROQ_API_KEY = "gsk_xxxxxxxxxxxxxxxxx";
 
-<script>
+    const GROQ_API_KEY = "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";
 
-const chatArea = document.getElementById("chatArea");
+    // Current Groq model
+    const MODEL = "openai/gpt-oss-20b";
 
-function addMessage(text,type) {
-    let div = document.createElement("div");
-    div.className = "message " + type;
-    div.textContent = text;
-    chatArea.appendChild(div);
-    chatArea.scrollTop = chatArea.scrollHeight;
-}
+    const API_URL =
+        "https://api.groq.com/openai/v1/chat/completions";
 
-function ask(question) {
-    document.getElementById("userInput").value = question;
-    sendMessage();
-}
 
-function getAnswer(question) {
+    // ============================================================
+    // DOM ELEMENTS
+    // ============================================================
 
-    let q = question.toLowerCase();
+    const chatBox = document.getElementById("chat-box");
+    const chatInput = document.getElementById("chat-input");
+    const sendBtn = document.getElementById("send-btn");
+    const clearChatBtn = document.getElementById("clear-chat");
+    const chatStatus = document.getElementById("chat-status");
 
-    if(q.includes("hello") || q.includes("hi")) {
-        return "Hello! 😊 Welcome to AI School Assistant. How can I help you?";
+
+    // ============================================================
+    // CHAT MEMORY
+    // ============================================================
+
+    let messages = [];
+
+
+    // ============================================================
+    // GET CURRENT TIME
+    // ============================================================
+
+    function getTime() {
+        const now = new Date();
+
+        return now.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
     }
 
-    if(q.includes("timing") || q.includes("time")) {
-        return "🕒 School Timing:\nMonday to Saturday\n8:00 AM to 2:00 PM.\nPlease verify with your school.";
+
+    document.getElementById("welcome-time").textContent = getTime();
+
+
+    // ============================================================
+    // MARKDOWN + CODE HIGHLIGHTING
+    // ============================================================
+
+    const renderer = new marked.Renderer();
+
+    renderer.code = function(code, language) {
+
+        const validLang =
+            language && hljs.getLanguage(language)
+                ? language
+                : "plaintext";
+
+        const highlighted = hljs.highlight(code, {
+            language: validLang
+        }).value;
+
+        const langLabel = language || "code";
+
+        return `
+            <div class="code-box">
+
+                <div class="code-top">
+
+                    <span>${langLabel}</span>
+
+                    <button
+                        class="copy-btn"
+                        onclick="copySnippet(this)"
+                    >
+                        Copy
+                    </button>
+
+                </div>
+
+                <pre>
+                    <code class="hljs language-${validLang}">
+                        ${highlighted}
+                    </code>
+                </pre>
+
+            </div>
+        `;
+    };
+
+
+    marked.setOptions({
+        renderer: renderer,
+        breaks: true,
+        gfm: true
+    });
+
+
+    // ============================================================
+    // COPY CODE
+    // ============================================================
+
+    window.copySnippet = function(btn) {
+
+        const code =
+            btn
+                .closest(".code-box")
+                .querySelector("pre code")
+                .innerText;
+
+        navigator.clipboard.writeText(code)
+            .then(() => {
+
+                btn.textContent = "Copied!";
+
+                setTimeout(() => {
+                    btn.textContent = "Copy";
+                }, 2000);
+
+            })
+            .catch(() => {
+                btn.textContent = "Failed";
+
+                setTimeout(() => {
+                    btn.textContent = "Copy";
+                }, 2000);
+            });
+    };
+
+
+    // ============================================================
+    // ADD MESSAGE TO CHAT
+    // ============================================================
+
+    function appendMessage(text, role) {
+
+        const row = document.createElement("div");
+
+        row.className = `msg-row ${role}`;
+
+
+        const bubble = document.createElement("div");
+
+        bubble.className = "msg-bubble";
+
+
+        let contentHTML;
+
+
+        if (role === "user") {
+
+            // Prevent HTML injection from user input
+            contentHTML =
+                document.createTextNode(text).textContent;
+
+        } else {
+
+            contentHTML = marked.parse(text);
+
+        }
+
+
+        const timeStr = getTime();
+
+
+        const ticks =
+            role === "user"
+                ? `<i class="fa-solid fa-check-double blue-tick"></i>`
+                : "";
+
+
+        bubble.innerHTML = `
+            ${contentHTML}
+
+            <div class="msg-meta">
+
+                <span>${timeStr}</span>
+
+                ${ticks}
+
+            </div>
+        `;
+
+
+        row.appendChild(bubble);
+
+        chatBox.appendChild(row);
+
+
+        chatBox.scrollTop =
+            chatBox.scrollHeight;
     }
 
-    if(q.includes("fee")) {
-        return "💰 For school fees information, please contact the school office. Ask about tuition fees, admission fees and payment dates.";
+
+    // ============================================================
+    // SHOW TYPING
+    // ============================================================
+
+    function showTyping() {
+
+        const row =
+            document.createElement("div");
+
+        row.className = "msg-row ai";
+
+        row.id = "typing-row";
+
+
+        const bubble =
+            document.createElement("div");
+
+        bubble.className =
+            "msg-bubble typing-box";
+
+
+        bubble.innerHTML = `
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+        `;
+
+
+        row.appendChild(bubble);
+
+        chatBox.appendChild(row);
+
+
+        chatBox.scrollTop =
+            chatBox.scrollHeight;
     }
 
-    if(q.includes("homework")) {
-        return "📚 I can help with your homework! Tell me your class, subject and question.";
+
+    // ============================================================
+    // REMOVE TYPING
+    // ============================================================
+
+    function removeTyping() {
+
+        const typing =
+            document.getElementById("typing-row");
+
+        if (typing) {
+            typing.remove();
+        }
     }
 
-    if(q.includes("exam") || q.includes("timetable")) {
-        return "📝 Please check your school notice board for the latest examination timetable.";
+
+    // ============================================================
+    // SEND MESSAGE
+    // ============================================================
+
+    async function handleSend() {
+
+        const text =
+            chatInput.value.trim();
+
+
+        // Empty message
+        if (!text || sendBtn.disabled) {
+            return;
+        }
+
+
+        // Check API key
+        if (
+            !GROQ_API_KEY ||
+            GROQ_API_KEY ===
+            "PASTE_YOUR_NEW_GROQ_API_KEY_HERE"
+        ) {
+
+            appendMessage(
+                "⚠️ Please add your Groq API key in the code first.",
+                "ai"
+            );
+
+            return;
+        }
+
+
+        // Clear input
+        chatInput.value = "";
+
+        chatInput.style.height = "auto";
+
+
+        // Disable send button
+        sendBtn.disabled = true;
+
+
+        // Show user message
+        appendMessage(text, "user");
+
+
+        // Add user message to memory
+        messages.push({
+            role: "user",
+            content: text
+        });
+
+
+        // Show typing status
+        chatStatus.textContent = "typing...";
+
+        showTyping();
+
+
+        try {
+
+            // ====================================================
+            // GROQ API REQUEST
+            // ====================================================
+
+            const response = await fetch(
+                API_URL,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json",
+
+                        "Authorization":
+                            `Bearer ${GROQ_API_KEY}`
+                    },
+
+                    body: JSON.stringify({
+
+                        model: MODEL,
+
+                        messages: [
+
+                            {
+                                role: "system",
+
+                                content:
+                                    "You are My Chatbot, a helpful AI assistant. " +
+                                    "Give clear, accurate and friendly answers. " +
+                                    "When providing programming code, use clean Markdown code blocks."
+                            },
+
+                            // Keep recent conversation
+                            ...messages.slice(-10)
+
+                        ],
+
+                        temperature: 0.7,
+
+                        max_tokens: 1500
+
+                    })
+                }
+            );
+
+
+            // ====================================================
+            // READ RESPONSE
+            // ====================================================
+
+            const data =
+                await response.json();
+
+
+            // ====================================================
+            // ERROR HANDLING
+            // ====================================================
+
+            if (!response.ok) {
+
+                console.error(
+                    "Groq API Error:",
+                    data
+                );
+
+
+                let errorMessage =
+                    data?.error?.message ||
+                    `Request failed with status ${response.status}`;
+
+
+                throw new Error(errorMessage);
+            }
+
+
+            // ====================================================
+            // GET AI RESPONSE
+            // ====================================================
+
+            const reply =
+                data?.choices?.[0]?.message?.content;
+
+
+            if (!reply) {
+
+                throw new Error(
+                    "No response received from the AI model."
+                );
+            }
+
+
+            // Save assistant response
+            messages.push({
+                role: "assistant",
+                content: reply
+            });
+
+
+            // Remove typing indicator
+            removeTyping();
+
+
+            // Show AI response
+            appendMessage(reply, "ai");
+
+
+            // Status
+            chatStatus.textContent = "online";
+
+
+        } catch (error) {
+
+            console.error(
+                "Chatbot Error:",
+                error
+            );
+
+
+            removeTyping();
+
+
+            // Remove last user message
+            messages.pop();
+
+
+            appendMessage(
+                `⚠️ Error: ${error.message}`,
+                "ai"
+            );
+
+
+            chatStatus.textContent =
+                "online";
+
+
+        } finally {
+
+            sendBtn.disabled = false;
+
+            chatInput.focus();
+        }
     }
 
-    if(q.includes("attendance")) {
-        return "📅 For attendance details, please contact your class teacher or school administration.";
-    }
 
-    if(q.includes("admission")) {
-        return "🎓 For admission, visit the school office and ask for the admission form and required documents.";
-    }
+    // ============================================================
+    // SEND BUTTON
+    // ============================================================
 
-    if(q.includes("holiday")) {
-        return "🏖️ Please check the official school holiday notice.";
-    }
+    sendBtn.addEventListener(
+        "click",
+        handleSend
+    );
 
-    if(q.includes("teacher")) {
-        return "👨‍🏫 You can get teacher information from your school office.";
-    }
 
-    if(q.includes("principal")) {
-        return "🏫 Please contact the school office for principal information.";
-    }
+    // ============================================================
+    // ENTER TO SEND
+    // ============================================================
 
-    if(q.includes("thank")) {
-        return "😊 You're welcome! Happy learning!";
-    }
+    chatInput.addEventListener(
+        "keydown",
+        (e) => {
 
-    return "🤖 Sorry, I don't have that information yet. Please ask about school fees, homework, exams, attendance, timing or admissions.";
-}
+            if (
+                e.key === "Enter" &&
+                !e.shiftKey
+            ) {
 
-function sendMessage() {
+                e.preventDefault();
 
-    let input = document.getElementById("userInput");
-    let question = input.value.trim();
+                handleSend();
+            }
+        }
+    );
 
-    if(question === "") return;
 
-    addMessage(question,"user");
-    input.value = "";
+    // ============================================================
+    // AUTO RESIZE TEXTAREA
+    // ============================================================
 
-    let typing = document.createElement("div");
-    typing.className = "message bot";
-    typing.textContent = "🤖 Thinking...";
-    chatArea.appendChild(typing);
+    chatInput.addEventListener(
+        "input",
+        function() {
 
-    chatArea.scrollTop = chatArea.scrollHeight;
+            this.style.height = "auto";
 
-    setTimeout(function() {
-        typing.textContent = getAnswer(question);
-        chatArea.scrollTop = chatArea.scrollHeight;
-    },700);
-}
+            this.style.height =
+                Math.min(
+                    this.scrollHeight,
+                    120
+                ) + "px";
+        }
+    );
 
+
+    // ============================================================
+    // CLEAR CHAT
+    // ============================================================
+
+    clearChatBtn.addEventListener(
+        "click",
+        () => {
+
+            if (
+                confirm("Clear chat?")
+            ) {
+
+                messages = [];
+
+
+                chatBox.innerHTML = `
+
+                    <div class="date-pill">
+                        TODAY
+                    </div>
+
+                    <div class="msg-row ai">
+
+                        <div class="msg-bubble">
+
+                            Chat cleared.
+                            Ask me anything!
+
+                            <div class="msg-meta">
+
+                                <span>
+                                    ${getTime()}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                `;
+            }
+        }
+    );
 </script>
-
 </body>
 </html>
